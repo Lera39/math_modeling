@@ -11,7 +11,7 @@ ax.grid(True, alpha=0.3)
 k = random.randint(10, 25)
 frames = 200
 
-# списки для хранения данных
+# списки для хранения данных зеленых точек
 points = [] 
 points_data = [] 
 speeds = []
@@ -37,8 +37,14 @@ x_virus = random.uniform(-5, 5)
 y_virus = random.uniform(-5, 5)
 virus, = ax.plot([x_virus], [y_virus], 'o', color='red', markersize=8)
 
+# Задаем скорость вируса отдельно
+virus_speed = random.uniform(0.5, 1.5)
+angle_virus = random.uniform(0, 2*np.pi)
+vx_virus = virus_speed * np.cos(angle_virus)
+vy_virus = virus_speed * np.sin(angle_virus)
+
 def update(frame):
-    global x_virus, y_virus, points_data
+    global x_virus, y_virus, vx_virus, vy_virus
     
     # Обновляем позиции зеленых точек
     for i, point in enumerate(points):
@@ -65,20 +71,20 @@ def update(frame):
         point.set_data([x_new], [y_new])
     
     # Обновляем позицию вируса
-    a = random.uniform(-0.2, 0.2)
-    x_virus = x_virus + 0.05 * frame + a
-    y_virus = y_virus + 0.05 * frame + a
+    x_virus = x_virus + vx_virus * 0.1
+    y_virus = y_virus + vy_virus * 0.1
     
-    # Отражение вируса от границ поля
+    # Отражение вируса от границ
     if abs(x_virus) >= 5:
-            vx = -vx
-            speeds[i][0] = vx
-            x_virus = x + vx * 0.1
-            
+        vx_virus = -vx_virus
+        x_virus = x_virus + vx_virus * 0.1  # корректируем позицию после отражения
+        
     if abs(y_virus) >= 5:
-        vy = -vy
-        speeds[i][1] = vy
-        y_virus = y + vy * 0.1
+        vy_virus = -vy_virus
+        y_virus = y_virus + vy_virus * 0.1  # корректируем позицию после отражения
+    
+    # Обновляем позицию вируса на графике
+    virus.set_data([x_virus], [y_virus])
     
     return points + [virus]
 
