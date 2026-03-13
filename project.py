@@ -18,7 +18,8 @@ for i in range(k):
     x = random.uniform(-5, 5)
     y = random.uniform(-5, 5)
     speed = random.uniform(0.05, 0.5)
-    points.append([x, y])
+    point, = ax.plot([x],[y], 'o', color = 'green', markersize = 4)
+    points.append(point)
 
     angle = random.uniform(0.2, 2*np.pi)
     vx = speed * np.cos(angle)
@@ -28,7 +29,7 @@ for i in range(k):
 # Создаем красную точку (вирус)
 x_virus = random.uniform(-5, 5) 
 y_virus = random.uniform(-5, 5)
-virus, = ax.plot([x_virus], [y_virus], 'o', color='red')
+virus, = ax.plot([x_virus], [y_virus], 'o', color='red', markersize = 7)
 virus_pos = [x_virus, y_virus]
 virus_speed = [random.uniform(0.05,0.5), random.uniform(0.05,0.5)]
 
