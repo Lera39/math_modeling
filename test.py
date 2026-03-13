@@ -11,12 +11,12 @@ ax.grid(True, alpha=0.3)
 k = random.randint(10, 25)
 frames = 200
 
-# Создаем списки для хранения данных
-points = []  # здесь будут объекты точек
-points_data = []  # здесь будут координаты и скорости
+# списки для хранения данных
+points = [] 
+points_data = [] 
 speeds = []
 
-# Создаем зеленые точки
+# зеленые точки
 for i in range(k):
     x = random.uniform(-5, 5)
     y = random.uniform(-5, 5)
@@ -28,7 +28,7 @@ for i in range(k):
     vy = speed * np.sin(angle)
     speeds.append([vx, vy])
     
-    # Создаем объект точки
+    # объект точки
     point, = ax.plot([x], [y], 'o', color='green', markersize=5)
     points.append(point)
 
@@ -46,7 +46,7 @@ def update(frame):
         vx, vy = speeds[i]
         
         # Обновляем координаты
-        x_new = x + vx * 0.1  # Уменьшаем шаг для плавности
+        x_new = x + vx * 0.1  
         y_new = y + vy * 0.1
         
         # Отражение от границ
@@ -70,15 +70,15 @@ def update(frame):
     y_virus = y_virus + 0.05 * frame + a
     
     # Отражение вируса от границ поля
-    if abs(x_new) >= 5:
+    if abs(x_virus) >= 5:
             vx = -vx
             speeds[i][0] = vx
-            x_new = x + vx * 0.1
+            x_virus = x + vx * 0.1
             
-    if abs(y_new) >= 5:
+    if abs(y_virus) >= 5:
         vy = -vy
         speeds[i][1] = vy
-        y_new = y + vy * 0.1
+        y_virus = y + vy * 0.1
     
     return points + [virus]
 
