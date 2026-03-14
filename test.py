@@ -9,65 +9,93 @@ ax.set_ylim(-5, 5)
 ax.grid(True, alpha=0.3)
 
 k = random.randint(10, 25)
-frames = 200
+frames = 400
 
 # списки для хранения данных зеленых точек
-points = [] 
-points_data = [] 
-speeds = []
-
+points_g = [] 
+points_data_g = [] 
+speeds_g = []
 # зеленые точки
 for i in range(k):
-    x = random.uniform(-5, 5)
-    y = random.uniform(-5, 5)
+    x_g = random.uniform(-5, 5)
+    y_g = random.uniform(-5, 5)
     speed = random.uniform(0.5, 1.5)
-    points_data.append([x, y])
+    points_data_g.append([x_g, y_g])
     
-    angle = random.uniform(0, 2*np.pi)
-    vx = speed * np.cos(angle)
-    vy = speed * np.sin(angle)
-    speeds.append([vx, vy])
+    angle_g = random.uniform(0, 2*np.pi)
+    vx_g = speed * np.cos(angle_g)
+    vy_g = speed * np.sin(angle_g)
+    speeds_g.append([vx_g, vy_g])
     
     # объект точки
-    point, = ax.plot([x], [y], 'o', color='green', markersize=5)
-    points.append(point)
+    point, = ax.plot([x_g], [y_g], 'o', color='green', markersize=5)
+    points_g.append(point)
 
-# Создаем красную точку (вирус)
-x_virus = random.uniform(-5, 5) 
-y_virus = random.uniform(-5, 5)
-virus, = ax.plot([x_virus], [y_virus], 'o', color='red', markersize=8)
+# списки для хранения данных синих точек
+points_b = [] 
+points_data_b = [] 
+speeds_b = []
+# синие точки
+for i in range(k):
+    x_b = random.uniform(-5, 5)
+    y_b = random.uniform(-5, 5)
+    speed = random.uniform(0.5, 1.5)
+    points_data_b.append([x_b, y_b])
+    
+    angle_b = random.uniform(0, 2*np.pi)
+    vx_b = speed * np.cos(angle_b)
+    vy_b = speed * np.sin(angle_b)
+    speeds_b.append([vx_b, vy_b])
+    
+    # объект точки
+    point, = ax.plot([x_b], [y_b], 'o', color='blue', markersize=5)
+    points_b.append(point)
 
-# Задаем скорость вируса отдельно
-virus_speed = random.uniform(0.5, 1.5)
-angle_virus = random.uniform(0, 2*np.pi)
-vx_virus = virus_speed * np.cos(angle_virus)
-vy_virus = virus_speed * np.sin(angle_virus)
+# списки для хранения данных красных точек
+points_r = [] 
+points_data_r = [] 
+speeds_r = []
+# зеленые точки
+for i in range(k):
+    x_r = random.uniform(-5, 5)
+    y_r = random.uniform(-5, 5)
+    speed = random.uniform(0.5, 1.5)
+    points_data_r.append([x_g, y_g])
+    
+    angle_r = random.uniform(0, 2*np.pi)
+    vx_r = speed * np.cos(angle_r)
+    vy_r = speed * np.sin(angle_r)
+    speeds_r.append([vx_r, vy_r])
+    
+    # объект точки
+    point, = ax.plot([x_r], [y_r], 'o', color='red', markersize=5)
+    points_r.append(point)
 
 def update(frame):
     global x_virus, y_virus, vx_virus, vy_virus
     
     # Обновляем позиции зеленых точек
-    for i, point in enumerate(points):
-        x, y = points_data[i]
-        vx, vy = speeds[i]
+    for i, point in enumerate(points_g):
+        x_g, y_g = points_data_g[i]
+        vx_g, vy_g = speeds_g[i]
         
         # Обновляем координаты
-        x_new = x + vx * 0.1  
-        y_new = y + vy * 0.1
+        x_new = x_g + vx_g * 0.1  
+        y_new = y_g + vy_g * 0.1
         
         # Отражение от границ
         if abs(x_new) >= 5:
-            vx = -vx
-            speeds[i][0] = vx
-            x_new = x + vx * 0.1
+            vx_g = -vx_g
+            speeds_g[i][0] = vx_g
+            x_new = x_g + vx_g * 0.1
             
         if abs(y_new) >= 5:
-            vy = -vy
-            speeds[i][1] = vy
-            y_new = y + vy * 0.1
+            vy_g = -vy_g
+            speeds_g[i][1] = vy_g
+            y_new = y_g + vy_g * 0.1
         
         # Сохраняем новые координаты
-        points_data[i] = [x_new, y_new]
+        points_data_g[i] = [x_new, y_new]
         point.set_data([x_new], [y_new])
     
     # Обновляем позицию вируса
@@ -86,7 +114,7 @@ def update(frame):
     # Обновляем позицию вируса на графике
     virus.set_data([x_virus], [y_virus])
     
-    return points + [virus]
+    return points_g + [virus]
 
 anim = FuncAnimation(fig, update, frames=frames, interval=50, blit=True)
 anim.save('virus_2.gif')
