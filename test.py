@@ -9,13 +9,13 @@ ax.set_ylim(-5, 5)
 ax.grid(True, alpha=0.3)
 
 k = random.randint(10, 25)
-frames = 400
+frames = 200
 
-# списки для хранения данных зеленых точек
+# Зеленые точки
 points_g = [] 
 points_data_g = [] 
 speeds_g = []
-# зеленые точки
+
 for i in range(k):
     x_g = random.uniform(-5, 5)
     y_g = random.uniform(-5, 5)
@@ -27,15 +27,14 @@ for i in range(k):
     vy_g = speed * np.sin(angle_g)
     speeds_g.append([vx_g, vy_g])
     
-    # объект точки
     point, = ax.plot([x_g], [y_g], 'o', color='green', markersize=5)
     points_g.append(point)
 
-# списки для хранения данных синих точек
+# Синие точки
 points_b = [] 
 points_data_b = [] 
 speeds_b = []
-# синие точки
+
 for i in range(k):
     x_b = random.uniform(-5, 5)
     y_b = random.uniform(-5, 5)
@@ -47,43 +46,38 @@ for i in range(k):
     vy_b = speed * np.sin(angle_b)
     speeds_b.append([vx_b, vy_b])
     
-    # объект точки
     point, = ax.plot([x_b], [y_b], 'o', color='blue', markersize=5)
     points_b.append(point)
 
-# списки для хранения данных красных точек
+# Красная точка (вирус)
 points_r = [] 
 points_data_r = [] 
 speeds_r = []
-# зеленые точки
-for i in range(k):
+
+for i in range(1):
     x_r = random.uniform(-5, 5)
     y_r = random.uniform(-5, 5)
     speed = random.uniform(0.5, 1.5)
-    points_data_r.append([x_g, y_g])
+    points_data_r.append([x_r, y_r])
     
     angle_r = random.uniform(0, 2*np.pi)
     vx_r = speed * np.cos(angle_r)
     vy_r = speed * np.sin(angle_r)
     speeds_r.append([vx_r, vy_r])
     
-    # объект точки
-    point, = ax.plot([x_r], [y_r], 'o', color='red', markersize=5)
+    point, = ax.plot([x_r], [y_r], 'o', color='red', markersize=7)
     points_r.append(point)
 
+# Единая функция обновления
 def update(frame):
-    global x_virus, y_virus, vx_virus, vy_virus
-    
-    # Обновляем позиции зеленых точек
+    # Обновление зеленых точек
     for i, point in enumerate(points_g):
         x_g, y_g = points_data_g[i]
         vx_g, vy_g = speeds_g[i]
         
-        # Обновляем координаты
         x_new = x_g + vx_g * 0.1  
         y_new = y_g + vy_g * 0.1
         
-        # Отражение от границ
         if abs(x_new) >= 5:
             vx_g = -vx_g
             speeds_g[i][0] = vx_g
@@ -94,28 +88,56 @@ def update(frame):
             speeds_g[i][1] = vy_g
             y_new = y_g + vy_g * 0.1
         
-        # Сохраняем новые координаты
         points_data_g[i] = [x_new, y_new]
         point.set_data([x_new], [y_new])
     
-    # Обновляем позицию вируса
-    x_virus = x_virus + vx_virus * 0.1
-    y_virus = y_virus + vy_virus * 0.1
-    
-    # Отражение вируса от границ
-    if abs(x_virus) >= 5:
-        vx_virus = -vx_virus
-        x_virus = x_virus + vx_virus * 0.1  # корректируем позицию после отражения
+    # Обновление синих точек
+    for i, point in enumerate(points_b):
+        x_b, y_b = points_data_b[i]
+        vx_b, vy_b = speeds_b[i]
         
-    if abs(y_virus) >= 5:
-        vy_virus = -vy_virus
-        y_virus = y_virus + vy_virus * 0.1  # корректируем позицию после отражения
+        x_new = x_b + vx_b * 0.1
+        y_new = y_b + vy_b * 0.1
+        
+        if abs(x_new) >= 5:
+            vx_b = -vx_b
+            speeds_b[i][0] = vx_b
+            x_new = x_b + vx_b * 0.1
+            
+        if abs(y_new) >= 5:
+            vy_b = -vy_b
+            speeds_b[i][1] = vy_b
+            y_new = y_b + vy_b * 0.1
+        
+        points_data_b[i] = [x_new, y_new]
+        point.set_data([x_new], [y_new])
     
-    # Обновляем позицию вируса на графике
-    virus.set_data([x_virus], [y_virus])
+    # Обновление красной точки
+    if points_r: 
+        point = points_r[0]
+        x_r, y_r = points_data_r[0]
+        vx_r, vy_r = speeds_r[0]
+        
+        x_new = x_r + vx_r * 0.1
+        y_new = y_r + vy_r * 0.1
+        
+        if abs(x_new) >= 5:
+            vx_r = -vx_r
+            speeds_r[0][0] = vx_r
+            x_new = x_r + vx_r * 0.1
+            
+        if abs(y_new) >= 5:
+            vy_r = -vy_r
+            speeds_r[0][1] = vy_r
+            y_new = y_r + vy_r * 0.1
+        
+        points_data_r[0] = [x_new, y_new]
+        point.set_data([x_new], [y_new])
     
-    return points_g + [virus]
+    # Возвращаем все обновленные точки
+    return points_g + points_b + points_r
 
+# Исправленный вызов FuncAnimation
 anim = FuncAnimation(fig, update, frames=frames, interval=50, blit=True)
 anim.save('virus_2.gif')
 plt.show()
