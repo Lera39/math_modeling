@@ -8,18 +8,20 @@ ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5) 
 ax.grid(True, alpha=0.3)
 
-k = random.randint(10, 25)
+k_1 = random.randint(10, 25)
+k_2 = random.randint(2, 5)
+k_3 = 1
 frames = 200
 
-# Зеленые точки
+# Зеленые точки (незараженные)
 points_g = [] 
 points_data_g = [] 
 speeds_g = []
 
-for i in range(k):
+for i in range(k_1):
     x_g = random.uniform(-5, 5)
     y_g = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
+    speed = random.uniform(0.5, 1)
     points_data_g.append([x_g, y_g])
     
     angle_g = random.uniform(0, 2*np.pi)
@@ -30,15 +32,15 @@ for i in range(k):
     point, = ax.plot([x_g], [y_g], 'o', color='green', markersize=5)
     points_g.append(point)
 
-# Синие точки
+# Синие точки (с иммунитетом)
 points_b = [] 
 points_data_b = [] 
 speeds_b = []
 
-for i in range(k):
+for i in range(k_2):
     x_b = random.uniform(-5, 5)
     y_b = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
+    speed = random.uniform(0.5, 1)
     points_data_b.append([x_b, y_b])
     
     angle_b = random.uniform(0, 2*np.pi)
@@ -54,10 +56,10 @@ points_r = []
 points_data_r = [] 
 speeds_r = []
 
-for i in range(1):
+for i in range(k_3):
     x_r = random.uniform(-5, 5)
     y_r = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
+    speed = random.uniform(0.5, 1)
     points_data_r.append([x_r, y_r])
     
     angle_r = random.uniform(0, 2*np.pi)
@@ -113,8 +115,7 @@ def update(frame):
         point.set_data([x_new], [y_new])
     
     # Обновление красной точки
-    if points_r: 
-        point = points_r[0]
+    for i, point in enumerate(points_r):
         x_r, y_r = points_data_r[0]
         vx_r, vy_r = speeds_r[0]
         
@@ -133,6 +134,9 @@ def update(frame):
         
         points_data_r[0] = [x_new, y_new]
         point.set_data([x_new], [y_new])
+
+        #заражение точек
+        distance = 0.2
     
     # Возвращаем все обновленные точки
     return points_g + points_b + points_r
