@@ -28,7 +28,7 @@ class Person:
 
     def near_infect(self, persons):
         for person in persons:
-            if person != self and infection == True and self.chance != True and person.is_infected and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1):
+            if person != self and self.chance != True and person.is_infected and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1):
                 return True
         return False
 
@@ -41,11 +41,6 @@ persons = []
 k = random.randint(80, 120)
 
 for i in range (k):
-    virus_k = random.random()
-    if virus_k > 0.6:
-        infection = True
-    else:
-        infection = False
 
     angel = random.random() * 2 * np.pi
 

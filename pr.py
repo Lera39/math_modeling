@@ -1,145 +1,70 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 from matplotlib.animation import FuncAnimation
 
-fig, ax = plt.subplots()
-ax.set_xlim(-5, 5)  
-ax.set_ylim(-5, 5) 
-ax.grid(True, alpha=0.3)
+class Person:
+    def init(self, x, y, speed_x, speed_y, chance=False, is_infected=False):
+        self.x = x
+        self.y = y
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.chance = chance
+        self.is_infected = is_infected
 
-k_1 = random.randint(10, 25)
-k_2 = random.randint(2,5)
-frames = 200
+    def near_infect(self, persons):
+        for person in persons:
+            if (person != self and 
+                not self.chance and 
+                person.is_infected and 
+                ((person.x - self.x)**2 + (person.y - self.y)**2) < 0.1):
+                return True
+        return False
 
-# Зеленые точки
-points_g = [] 
-points_data_g = [] 
-speeds_g = []
+    def infect(self):
+        self.is_infected = True
 
-for i in range(k_1):
-    x_g = random.uniform(-5, 5)
-    y_g = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
-    points_data_g.append([x_g, y_g])
-    
-    angle_g = random.uniform(0, 2*np.pi)
-    vx_g = speed * np.cos(angle_g)
-    vy_g = speed * np.sin(angle_g)
-    speeds_g.append([vx_g, vy_g])
-    
-    point, = ax.plot([x_g], [y_g], 'o', color='green', markersize=5)
-    points_g.append(point)
+    def update(self):
+        self.x += self.speed_x * 0.1
+        self.y += self.speed_y * 0.1
 
-# Синие точки
-points_b = [] 
-points_data_b = [] 
-speeds_b = []
+# Создаем figure один раз
+figure, axises = plt.subplots()
+animation_red_points, = plt.plot([], [], 'o', color='red')
+animation_green_points, = plt.plot([], [], 'o', color='green')
 
-for i in range(k_2):
-    x_b = random.uniform(-5, 5)
-    y_b = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
-    points_data_b.append([x_b, y_b])
-    
-    angle_b = random.uniform(0, 2*np.pi)
-    vx_b = speed * np.cos(angle_b)
-    vy_b = speed * np.sin(angle_b)
-    speeds_b.append([vx_b, vy_b])
-    
-    point, = ax.plot([x_b], [y_b], 'o', color='blue', markersize=5)
-    points_b.append(point)
+# Создаем экземпляры классов правильно
+persons = [
+    Person(1, 1, 0.1, 0.1, False, True),   # Зараженный
+    Person(1, 2, 0.05, 0.05, False, False)  # Здоровый
+]
 
-# Красная точка (вирус)
-points_r = [] 
-points_data_r = [] 
-speeds_r = []
+def update(frame):
+    data_red_points_x = []
+    data_red_points_y = []
+    data_green_points_x = []
+    data_green_points_y = []
+    
+    for person in persons:
+        person.update()
+        
+        if person.near_infect(persons):
+            person.infect()
+        
+        if person.is_infected:
+            data_red_points_x.append(person.x)
+            data_red_points_y.append(person.y)
+        else:
+            data_green_points_x.append(person.x)
+            data_green_points_y.append(person.y)
+    
+    animation_red_points.set_data(data_red_points_x, data_red_points_y)
+    animation_green_points.set_data(data_green_points_x, data_green_points_y)
+    return animation_red_points, animation_green_points
 
-for i in range(1):
-    x_r = random.uniform(-5, 5)
-    y_r = random.uniform(-5, 5)
-    speed = random.uniform(0.5, 1.5)
-    points_data_r.append([x_r, y_r])
-    
-    angle_r = random.uniform(0, 2*np.pi)
-    vx_r = speed * np.cos(angle_r)
-    vy_r = speed * np.sin(angle_r)
-    speeds_r.append([vx_r, vy_r])
-    
-    point, = ax.plot([x_r], [y_r], 'o', color='red', markersize=7)
-    points_r.append(point)
+axises.set_xlim(0, 5)
+axises.set_ylim(0, 5)
+frames = np.arange(100)
 
-# # Единая функция обновления
-# def update(frame):
-#     # Обновление зеленых точек
-#     for i, point in enumerate(points_g):
-#         x_g, y_g = points_data_g[i]
-#         vx_g, vy_g = speeds_g[i]
-        
-#         x_new = x_g + vx_g * 0.1  
-#         y_new = y_g + vy_g * 0.1
-        
-#         if abs(x_new) >= 5:
-#             vx_g = -vx_g
-#             speeds_g[i][0] = vx_g
-#             x_new = x_g + vx_g * 0.1
-            
-#         if abs(y_new) >= 5:
-#             vy_g = -vy_g
-#             speeds_g[i][1] = vy_g
-#             y_new = y_g + vy_g * 0.1
-        
-#         points_data_g[i] = [x_new, y_new]
-#         point.set_data([x_new], [y_new])
-    
-#     # Обновление синих точек
-#     for i, point in enumerate(points_b):
-#         x_b, y_b = points_data_b[i]
-#         vx_b, vy_b = speeds_b[i]
-        
-#         x_new = x_b + vx_b * 0.1
-#         y_new = y_b + vy_b * 0.1
-        
-#         if abs(x_new) >= 5:
-#             vx_b = -vx_b
-#             speeds_b[i][0] = vx_b
-#             x_new = x_b + vx_b * 0.1
-            
-#         if abs(y_new) >= 5:
-#             vy_b = -vy_b
-#             speeds_b[i][1] = vy_b
-#             y_new = y_b + vy_b * 0.1
-        
-#         points_data_b[i] = [x_new, y_new]
-#         point.set_data([x_new], [y_new])
-    
-#     # Обновление красной точки
-#     if points_r: 
-#         point = points_r[0]
-#         x_r, y_r = points_data_r[0]
-#         vx_r, vy_r = speeds_r[0]
-        
-#         x_new = x_r + vx_r * 0.1
-#         y_new = y_r + vy_r * 0.1
-        
-#         if abs(x_new) >= 5:
-#             vx_r = -vx_r
-#             speeds_r[0][0] = vx_r
-#             x_new = x_r + vx_r * 0.1
-            
-#         if abs(y_new) >= 5:
-#             vy_r = -vy_r
-#             speeds_r[0][1] = vy_r
-#             y_new = y_r + vy_r * 0.1
-        
-#         points_data_r[0] = [x_new, y_new]
-#         point.set_data([x_new], [y_new])
-    
-#     # Возвращаем все обновленные точки
-#     return points_g + points_b + points_r
-
-# Исправленный вызов FuncAnimation
-# anim = FuncAnimation(fig, update, frames=frames, interval=50, blit=True)
-# anim.save('virus_2.gif')
-plt.savefig('pr.png')
+animation = FuncAnimation(figure, update, frames=frames, interval=50, blit=True)
+animation.save('pr.gif', writer='pillow')
 plt.show()
