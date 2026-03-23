@@ -4,7 +4,7 @@ import random
 from matplotlib.animation import FuncAnimation
 
 class Person:
-    def __init__(self, x, y, speed_x, speed_y, contacts, kof_ver, time_i, chance = False, is_infected = False):   
+    def __init__(self, x, y, speed_x, speed_y, contacts, kof_ver, time_i, time_r, chance = False, is_infected = False):   
         self.x = x
         self.y = y
         self.speed_x = speed_x * np.cos(angel)
@@ -12,6 +12,7 @@ class Person:
         self.chance = chance
         self.is_infected = is_infected
         self.time_i = time_i
+        self.time_r = time_r
         self.contacts = contacts
         self.kof_ver = kof_ver
         
@@ -42,7 +43,7 @@ class Person:
     def change_contacts(self, persons):
         for person in persons:
             if (person != self and person.is_infected == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
-                self.kof_ver += 0.05
+                self.kof_ver += 0.00005
                 self.contacts += 1
         return self.kof_ver, self.contacts
 
@@ -53,16 +54,21 @@ class Person:
             self.time_i = 0
             self.chance = True
 
+    def lost_r(self):
+        if self.chance == True and self.time_r >=1:
+            self.chance = False
+            self.time_r = 0
+
+
 figure, axises = plt.subplots()
 
 persons = []
 k = random.randint(80, 120)
 
-
 for i in range (k):
-
     angel = random.random() * 2 * np.pi
-    self_i = 0
+    time_i = 0
+    time_r = 0
     contacts = 0
 
     v = random.random()
@@ -85,7 +91,8 @@ for i in range (k):
         random.uniform(0.2, 0.4),   #speed_y
         contacts,
         random.uniform(0.4, 0.6),   #kof_ver
-        self_i,
+        time_i,
+        time_r,
         chance,
         is_infected,
     ))
@@ -115,11 +122,14 @@ def update(frame):
         person.update()
 
         if person.is_infected == True:
-            person.time_i +=0.2
+            person.time_i += 0.002
             person.lost_i()
- 
+        elif person.chance == True:
+            person.time_r += 0.0002
+            person.lost_r()
+
+        person.change_contacts(persons)
         if person.near_infect(persons):
-            person.change_contacts()
             person.infect()
  
         if person.is_infected:
@@ -142,8 +152,8 @@ def update(frame):
     return animation_red_points, animation_green_points, animation_blue_points
 
 
-axises.set_xlim(-6, 5)
-axises.set_ylim(-5, 6)
+axises.set_xlim(-5, 5)
+axises.set_ylim(-5, 5)
 frames = np.arange(400)
 animation = FuncAnimation(figure, update, frames=frames, interval=50)
 animation.save('virus.gif')
