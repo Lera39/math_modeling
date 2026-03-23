@@ -43,7 +43,7 @@ class Person:
     def change_contacts(self, persons):
         for person in persons:
             if (person != self and person.is_infected == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
-                self.kof_ver += 0.00005
+                self.kof_ver += 0.0005
                 self.contacts += 1
         return self.kof_ver, self.contacts
 
@@ -58,6 +58,7 @@ class Person:
         if self.chance == True and self.time_r >=1:
             self.chance = False
             self.time_r = 0
+            self.kof_ver = random.uniform(0.25, 0.4)
 
 
 figure, axises = plt.subplots()
@@ -76,6 +77,7 @@ for i in range (k):
     if v < 0.07:
         chance = False
         is_infected = True
+        time_i = random.uniform(0, 0.5)
     elif v >= 0.07:
         if immun > 14:
             chance = True
@@ -122,10 +124,10 @@ def update(frame):
         person.update()
 
         if person.is_infected == True:
-            person.time_i += 0.002
+            person.time_i += 0.004
             person.lost_i()
         elif person.chance == True:
-            person.time_r += 0.0002
+            person.time_r += 0.00045
             person.lost_r()
 
         person.change_contacts(persons)
@@ -154,7 +156,7 @@ def update(frame):
 
 axises.set_xlim(-5, 5)
 axises.set_ylim(-5, 5)
-frames = np.arange(400)
+frames = np.arange(1000)
 animation = FuncAnimation(figure, update, frames=frames, interval=50)
 animation.save('virus.gif')
 plt.show()
