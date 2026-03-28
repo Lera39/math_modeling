@@ -39,12 +39,13 @@ class Person:
 
     #проверка на наличие рядом с незараженным человека с инкубационным периодом
     def near_incub(self, persons):
-        if self.is_infected == False and self.is_incub == False and self.chance != True:
-            for person in persons:
-                if (person != self and person.is_incub 
-                and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
-                    return True
-        return False
+        if self.kof_ver >= 0.5:
+            if self.is_infected == False and self.is_incub == False and self.chance != True:
+                for person in persons:
+                    if (person != self and person.is_incub 
+                    and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
+                        return True
+            return False
 
     #начало инкубационного периода
     def incub_period(self):
@@ -59,11 +60,11 @@ class Person:
         for person in persons:
             if (person != self and person.is_infected == True 
             and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
-                self.kof_ver += 0.0005
+                self.kof_ver += 0.00005
                 self.contacts += 1
             if (person != self and person.is_incub == True 
             and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
-                self.kof_ver += 0.001
+                self.kof_ver += 0.0005
                 self.contacts += 1
         return self.kof_ver, self.contacts
 
@@ -71,7 +72,7 @@ class Person:
     def lost_e(self):
         if self.time_e >=1:
             self.is_incub = False
-            self.is_infected = True
+            self.infect()
             self.time_e = 0
 
     #конец заражения
@@ -110,6 +111,7 @@ for i in range (k):
         time_i = random.uniform(0, 0.5)
     elif v>= 0.07 and v <= 0.1:
         is_incub = True
+        chance = False
     elif v > 0.1:
         if immun > 14:
             chance = True
@@ -167,7 +169,7 @@ def update(frame):
         elif person.chance == True:    #время иммунитета + потеря иммунитета
             person.time_r += 0.00045
             person.lost_r()
-        elif person.incub_period == True:   #время инкубационного периода + начало болезни
+        elif person.is_incub == True:   #время инкубационного периода + начало болезни
             person.time_e += 0.01
             person.lost_e()
 
