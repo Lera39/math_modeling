@@ -4,7 +4,7 @@ import random
 from matplotlib.animation import FuncAnimation
 
 class Person:
-    def __init__(self, x, y, speed_x, speed_y, contacts, kof_ver, time_i, time_r, time_e, incub = False, chance = False, is_infected = False):   
+    def __init__(self, x, y, speed_x, speed_y, contacts, kof_ver, time_i, time_r, time_e, is_incub = False, chance = False, is_infected = False):   
         self.x = x
         self.y = y
         self.speed_x = speed_x * np.cos(angel)
@@ -14,7 +14,7 @@ class Person:
         self.time_i = time_i   #время с инфекцией
         self.time_r = time_r   #время с иммунитетом
         self.time_e = time_e   #время инкубационного периода
-        self.incub = incub   #наличие инкубационного периода
+        self.is_incub = is_incub   #наличие инкубационного периода
         self.contacts = contacts   #кол-во контактов
         self.kof_ver = kof_ver   #коэффициент вероятности заражения
         
@@ -39,16 +39,16 @@ class Person:
 
     #проверка на наличие рядом с незараженным человека с инкубационным периодом
     def near_incub(self, persons):
-        if self.is_infected == False and self.incub == False and self.chance != True:
+        if self.is_infected == False and self.is_incub == False and self.chance != True:
             for person in persons:
-                if (person != self and person.incub 
+                if (person != self and person.is_incub 
                 and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
                     return True
         return False
 
     #начало инкубационного периода
     def incub_period(self):
-        self.incub = True
+        self.is_incub = True
 
     #начало заражения
     def infect(self):
@@ -57,10 +57,12 @@ class Person:
     #коэффициент вероятности заражения
     def change_contacts(self, persons):
         for person in persons:
-            if (person != self and person.is_infected == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
+            if (person != self and person.is_infected == True 
+            and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
                 self.kof_ver += 0.0005
                 self.contacts += 1
-            if (person != self and person.incub == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
+            if (person != self and person.is_incub == True 
+            and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
                 self.kof_ver += 0.001
                 self.contacts += 1
         return self.kof_ver, self.contacts
@@ -68,9 +70,9 @@ class Person:
     #конец инкубационного периода
     def lost_e(self):
         if self.time_e >=1:
+            self.is_incub = False
             self.is_infected = True
             self.time_e = 0
-            self.incub = False
 
     #конец заражения
     def lost_i(self):
@@ -97,8 +99,8 @@ for i in range (k):
     time_i = 0
     time_r = 0
     time_e = 0
-    incub = False
     contacts = 0
+    is_incub = False
 
     v = random.random()
     immun = random.randint(1,15)
@@ -106,7 +108,9 @@ for i in range (k):
         chance = False
         is_infected = True
         time_i = random.uniform(0, 0.5)
-    elif v >= 0.07:
+    elif v>= 0.07 and v <= 0.1:
+        is_incub = True
+    elif v > 0.1:
         if immun > 14:
             chance = True
             is_infected = False
@@ -124,7 +128,7 @@ for i in range (k):
         time_i,
         time_r,
         time_e,
-        incub,
+        is_incub,
         chance,
         is_infected,
     ))
@@ -169,6 +173,9 @@ def update(frame):
 
         if person.near_infect(persons):   #начало инк. пер.
             person.incub_period()
+
+        if person.near_incub(persons):
+            person.incub_period()
  
         if person.is_infected:
             data_red_points_x.append(person.x)
@@ -176,7 +183,7 @@ def update(frame):
         elif person.chance:
             data_blue_points_x.append(person.x)
             data_blue_points_y.append(person.y)
-        elif person.incub:
+        elif person.is_incub:
             data_orange_points_x.append(person.x)
             data_orange_points_y.append(person.y)
         else:
