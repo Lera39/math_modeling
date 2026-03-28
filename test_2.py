@@ -11,13 +11,14 @@ class Person:
         self.speed_y = speed_y * np.sin(angel)
         self.chance = chance
         self.is_infected = is_infected
-        self.time_i = time_i
-        self.time_r = time_r
-        self.incub = incub
-        self.contacts = contacts
-        self.kof_ver = kof_ver
+        self.time_i = time_i   #время с инфекцией
+        self.time_r = time_r   #время с иммунитетом
+        self.time_e = time_e   #время инкубационного периода
+        self.incub = incub   #наличие инкубационного периода
+        self.contacts = contacts   #кол-во контактов
+        self.kof_ver = kof_ver   #коэффициент вероятности заражения
         
-
+    #передвижение
     def update(self):
         self.x = self.x + self.speed_x * 0.1
         self.y = self.y + self.speed_y * 0.1
@@ -27,7 +28,7 @@ class Person:
         if abs(self.y) >= 5:
             self.speed_y = -self.speed_y
 
-
+    #проверка на наличие рядом зараженного
     def near_infect(self, persons):
         if self.kof_ver >= 0.5:
             for person in persons:
@@ -36,35 +37,49 @@ class Person:
                     return True
         return False
 
+    #проверка на наличие рядом с незараженным человека с инкубационным периодом
+    def near_incub(self, persons):
+        if self.is_infected == False and self.incub == False and self.chance != True:
+            for person in persons:
+                if (person != self and person.incub 
+                and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
+                    return True
+        return False
 
+    #начало инкубационного периода
     def incub_period(self):
         self.incub = True
 
-
+    #начало заражения
     def infect(self):
-            self.is_infected = True
+        self.is_infected = True
 
-
+    #коэффициент вероятности заражения
     def change_contacts(self, persons):
         for person in persons:
             if (person != self and person.is_infected == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
                 self.kof_ver += 0.0005
                 self.contacts += 1
+            if (person != self and person.incub == True and (((person.x - self.x) ** 2 + (person.y - self.y) ** 2) < 0.1)):
+                self.kof_ver += 0.001
+                self.contacts += 1
         return self.kof_ver, self.contacts
 
-
-    def lost_e(self, persons):
-        if self.incub == True and self.incub_period >=1:
+    #конец инкубационного периода
+    def lost_e(self):
+        if self.time_e >=1:
             self.is_infected = True
             self.time_e = 0
+            self.incub = False
 
-
+    #конец заражения
     def lost_i(self):
         if self.is_infected == True and self.time_i >= 1:
             self.is_infected = False
             self.time_i = 0
             self.chance = True
 
+    #потеря иммунитета
     def lost_r(self):
         if self.chance == True and self.time_r >=1:
             self.chance = False
@@ -82,6 +97,7 @@ for i in range (k):
     time_i = 0
     time_r = 0
     time_e = 0
+    incub = False
     contacts = 0
 
     v = random.random()
@@ -139,19 +155,20 @@ def update(frame):
     for person in persons:
         person.update()
 
-        if person.is_infected == True:
+        person.change_contacts(persons)   #активация фцнкции увеличения коэффициента вероятности заражения
+
+        if person.is_infected == True:   #время болезни + конец болезни
             person.time_i += 0.004
             person.lost_i()
-        elif person.chance == True:
+        elif person.chance == True:    #время иммунитета + потеря иммунитета
             person.time_r += 0.00045
             person.lost_r()
-        elif person.incub_period == True:
+        elif person.incub_period == True:   #время инкубационного периода + начало болезни
             person.time_e += 0.01
             person.lost_e()
 
-        person.change_contacts(persons)
-        if person.near_infect(persons):
-            person.incube_period()
+        if person.near_infect(persons):   #начало инк. пер.
+            person.incub_period()
  
         if person.is_infected:
             data_red_points_x.append(person.x)
